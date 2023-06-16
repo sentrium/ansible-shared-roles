@@ -1,0 +1,30 @@
+---
+
+- name: Get a company list from FreshDesk (page={{ page_index }})
+  ansible.builtin.uri:
+    url: "{{ freshdesk_url }}/api/v2/search/companies?query={{ query | urlencode }}&page={{ page_index }}"
+    user: "{{ freshdesk_token }}"
+    password: X
+    method: GET
+    force_basic_auth: true
+    status_code: 200
+    return_content: true
+    headers:
+      Content-Type: application/json
+  register: freshdesk_companies_output
+  vars:
+    query: "\"subscription:'[Support] Mission Critical' OR subscription:'[Support] Production'\""
+
+- name: Append freshdesk_companies_ids variable
+  set_fact:
+    freshdesk_companies_ids: "{{ (freshdesk_companies_ids | default([])) + (freshdesk_companies_output.json.results | json_query(query)) }}"
+  vars:
+    query: "[].id"
+
+- name: Increment page_index variable
+  set_fact:
+    page_index: "{{ (page_index | int) + 1 }}"
+
+- name: Collect companies list
+  include_tasks: collect_companies.yml
+  when: (freshdesk_companies_output.json.results | length) > 0

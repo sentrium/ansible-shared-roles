@@ -1,0 +1,8 @@
+---
+
+- name: Reset page_index variable
+  set_fact:
+    page_index: 1
+
+- name: Collect companies list
+  include_tasks: collect_users.yml

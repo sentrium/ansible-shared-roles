@@ -1,0 +1,44 @@
+---
+
+- name: Fail if some variable is undefined
+  fail:
+  when: "{{ item }} is not defined"
+  with_items:
+    - freshdesk_token
+    - freshdesk_url
+
+- name: Reset page_index variable
+  set_fact:
+    page_index: 1
+
+- name: Collect companies list
+  include_tasks: collect_companies.yml
+
+- debug:
+    var: freshdesk_companies_ids
+
+- name: Collect companies list
+  include_tasks: user_collection_itterator.yml
+  with_items: "{{ freshdesk_companies_ids }}"
+  loop_control:
+    loop_var: freshdesk_company_id
+
+- debug:
+    var: freshdesk_users_emails
+
+- name: Reset page_index variable
+  set_fact:
+    page_index: 1
+
+- name: Collect agents list
+  include_tasks: collect_agents.yml
+
+- debug:
+    var: freshdesk_agents_emails
+
+- name: Sort and deduplicate freshdesk_users_emails variable
+  set_fact:
+    available_customers: "{{ (freshdesk_users_emails + freshdesk_users_emails) | sort | unique  }}"
+
+- debug:
+    var: available_customers

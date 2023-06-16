@@ -1,0 +1,28 @@
+---
+
+- name: Get a user list from FreshDesk company (page={{ page_index }}, freshdesk_company_id={{ freshdesk_company_id }})
+  ansible.builtin.uri:
+    url: "{{ freshdesk_url }}/api/v2/contacts?company_id={{ freshdesk_company_id }}&page={{ page_index }}"
+    user: "{{ freshdesk_token }}"
+    password: X
+    method: GET
+    force_basic_auth: true
+    status_code: 200
+    return_content: true
+    headers:
+      Content-Type: application/json
+  register: freshdesk_users_output
+
+- name: Append freshdesk_users_emails variable
+  set_fact:
+    freshdesk_users_emails: "{{ (freshdesk_users_emails | default([])) + (freshdesk_users_output.json | json_query(query)) }}"
+  vars:
+    query: "[].email"
+
+- name: Increment page_index variable
+  set_fact:
+    page_index: "{{ (page_index | int) + 1 }}"
+
+- name: Collect users list
+  include_tasks: collect_users.yml
+  when: (freshdesk_users_output.json | length) > 0

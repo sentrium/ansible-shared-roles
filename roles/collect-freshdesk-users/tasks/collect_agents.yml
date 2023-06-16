@@ -1,0 +1,28 @@
+---
+
+- name: Get an agents list from FreshDesk (page={{ page_index }})
+  ansible.builtin.uri:
+    url: "{{ freshdesk_url }}/api/v2/agents?page={{ page_index }}"
+    user: "{{ freshdesk_token }}"
+    password: X
+    method: GET
+    force_basic_auth: true
+    status_code: 200
+    return_content: true
+    headers:
+      Content-Type: application/json
+  register: freshdesk_agents_output
+
+- name: Append freshdesk_agents_emails variable
+  set_fact:
+    freshdesk_agents_emails: "{{ (freshdesk_agents_emails | default([])) + (freshdesk_agents_output.json | json_query(query)) }}"
+  vars:
+    query: "[].contact.email"
+
+- name: Increment page_index variable
+  set_fact:
+    page_index: "{{ (page_index | int) + 1 }}"
+
+- name: Collect companies list
+  include_tasks: collect_agents.yml
+  when: (freshdesk_agents_output.json | length) > 0
