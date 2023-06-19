@@ -13,7 +13,7 @@
       Content-Type: application/json
   register: freshdesk_companies_output
   vars:
-    query: "\"subscription:'[Support] Mission Critical' OR subscription:'[Support] Production'\""
+    query: "\"{{ freshdesk_organization_filter }}\""
 
 - name: Append freshdesk_companies_ids variable
   set_fact:

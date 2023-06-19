@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  connection: local
+  
+  vars_prompt:
+    - name: freshdesk_url
+      prompt: freshdesk_url
+      private: false
+    - name: freshdesk_token
+      prompt: freshdesk_token
+      private: true
+    - name: freshdesk_organization_filter
+      prompt: freshdesk_organization_filter
+      private: false
+  
+  roles:
+    - ../../freshdesk-collect-user-emails-from-filtered-companies

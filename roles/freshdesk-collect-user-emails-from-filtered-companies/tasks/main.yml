@@ -6,6 +6,7 @@
   with_items:
     - freshdesk_token
     - freshdesk_url
+    - freshdesk_organization_filter
 
 - name: Reset page_index variable
   set_fact:
@@ -23,9 +24,6 @@
   loop_control:
     loop_var: freshdesk_company_id
 
-- debug:
-    var: freshdesk_users_emails
-
 - name: Reset page_index variable
   set_fact:
     page_index: 1
@@ -33,12 +31,9 @@
 - name: Collect agents list
   include_tasks: collect_agents.yml
 
-- debug:
-    var: freshdesk_agents_emails
-
 - name: Sort and deduplicate freshdesk_users_emails variable
   set_fact:
-    available_customers: "{{ (freshdesk_users_emails + freshdesk_users_emails) | sort | unique  }}"
+    freshdesk_users_emails: "{{ (freshdesk_users_emails + freshdesk_agents_emails) | sort | unique }}"
 
 - debug:
-    var: available_customers
+    var: freshdesk_users_emails
