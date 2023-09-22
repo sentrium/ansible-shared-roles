@@ -18,6 +18,7 @@
     register: slack_send_output
   - debug:
       var: slack_send_output.stdout_lines
+    when: (slack_send_output.stdout | from_json)['ok'] == false
   - fail:
     when: (slack_send_output.stdout | from_json)['ok'] == false
   when: file_lookup.stat.exists
