@@ -1,0 +1,23 @@
+---
+
+- name: Looking for {{ item.filename }}
+  stat:
+    path: "{{ item.filename }}"
+  register: file_lookup
+
+- block:
+  - name: Send a full report to Slack
+    shell: |
+      curl https://slack.com/api/files.upload \
+      -F file=@{{ item.filename }} \
+      -F "filename={{ item.filename }}" \
+      -F channels={{ slack_channel }} \
+      -F "title={{ item.title }} {{ timestamp }}" \
+      -F "initial_comment=:ballot_box_with_ballot:" \
+      -H "Authorization: Bearer {{ slack_bot_token }}"    
+    register: slack_send_output
+  - debug:
+      var: slack_send_output.stdout_lines
+  - fail:
+    when: (slack_send_output.stdout | from_json)['ok'] == false
+  when: file_lookup.stat.exists

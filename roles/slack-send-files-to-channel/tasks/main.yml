@@ -1,0 +1,14 @@
+---
+
+- name: Fail if some variable is undefined
+  fail:
+  when: "{{ item }} is not defined"
+  with_items:
+    - slack_bot_token
+    - slack_channel
+    - slack_files_to_upload
+
+- name: Send a full report to Slack
+  include_tasks: send_file_to_slack_channel.yml
+  with_items: "{{ slack_files_to_upload }}"
+
