@@ -6,7 +6,7 @@
   register: file_lookup
 
 - block:
-  - name: Send a full report to Slack
+  - name: Send a file to Slack
     shell: |
       curl https://slack.com/api/files.upload \
       -F file=@{{ item.filename }} \
